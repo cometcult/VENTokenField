@@ -23,12 +23,15 @@
 #import <UIKit/UIKit.h>
 
 @class VENTokenField;
+@class VENBackspaceTextField;
+
 @protocol VENTokenFieldDelegate <NSObject>
 @optional
 - (void)tokenField:(VENTokenField *)tokenField didEnterText:(NSString *)text;
 - (void)tokenField:(VENTokenField *)tokenField didDeleteTokenAtIndex:(NSUInteger)index;
 - (void)tokenField:(VENTokenField *)tokenField didChangeText:(NSString *)text;
 - (void)tokenFieldDidBeginEditing:(VENTokenField *)tokenField;
+- (void)tokenFieldDidEndEditing:(VENTokenField *)tokenField;
 @end
 
 @protocol VENTokenFieldDataSource <NSObject>
@@ -59,6 +62,7 @@
 @property (assign, nonatomic) CGFloat horizontalInset;
 @property (assign, nonatomic) CGFloat tokenPadding;
 @property (assign, nonatomic) CGFloat minInputWidth;
+@property (assign, nonatomic) CGFloat toLabelPadding;
 
 @property (assign, nonatomic) UIKeyboardType inputTextFieldKeyboardType;
 @property (assign, nonatomic) UITextAutocorrectionType autocorrectionType;
@@ -66,11 +70,13 @@
 @property (strong, nonatomic) UIColor *toLabelTextColor;
 @property (strong, nonatomic) NSString *toLabelText;
 @property (strong, nonatomic) UIColor *inputTextFieldTextColor;
+@property (strong, nonatomic) UIFont *font;
 
 @property (strong, nonatomic) UILabel *toLabel;
 
 @property (copy, nonatomic) NSString *placeholderText;
 @property (copy, nonatomic) NSString *inputTextFieldAccessibilityLabel;
+@property (strong, nonatomic) VENBackspaceTextField *inputTextField;
 
 - (void)setColorScheme:(UIColor *)color;
 
