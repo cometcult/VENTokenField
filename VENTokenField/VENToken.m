@@ -41,7 +41,6 @@
 
 - (void)setUpInit
 {
-    self.backgroundView.layer.cornerRadius = 5;
     self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapToken:)];
     self.colorScheme = [UIColor blueColor];
     self.titleLabel.textColor = self.colorScheme;
@@ -52,8 +51,24 @@
 {
     self.titleLabel.text = text;
     self.titleLabel.textColor = self.colorScheme;
+    [self updateTitleLabelFrame];
+}
+
+- (void)updateTitleLabelFrame {
+    //adjusting width also makes vertical insets to be truncated (since sizeToFit works that way)
+    //we don't want it to happen, so we preserve the original height here
+    CGFloat oldHeight = self.titleLabel.frame.size.height;
+
+    [self adjustTitleLabelWidth];
+
+    CGRect currentFrame = self.titleLabel.frame;
+    CGRect newFrame = CGRectMake(currentFrame.origin.x, currentFrame.origin.y, currentFrame.size.width, oldHeight);
+    self.titleLabel.frame = newFrame;
+}
+
+- (void)adjustTitleLabelWidth {
     [self.titleLabel sizeToFit];
-    self.frame = CGRectMake(CGRectGetMinX(self.frame), CGRectGetMinY(self.frame), CGRectGetMaxX(self.titleLabel.frame) + 3, CGRectGetHeight(self.frame));
+    self.frame = CGRectMake(CGRectGetMinX(self.frame), CGRectGetMinY(self.frame), CGRectGetMaxX(self.titleLabel.frame), CGRectGetHeight(self.frame));
     [self.titleLabel sizeToFit];
 }
 
@@ -71,6 +86,11 @@
     _colorScheme = colorScheme;
     self.titleLabel.textColor = self.colorScheme;
     [self setHighlighted:_highlighted];
+}
+
+- (void)setFont:(UIFont *)font {
+    _font = font;
+    self.titleLabel.font = _font;
 }
 
 

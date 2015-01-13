@@ -41,7 +41,6 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 @property (assign, nonatomic) CGFloat originalHeight;
 @property (strong, nonatomic) UITapGestureRecognizer *tapGestureRecognizer;
 @property (strong, nonatomic) VENBackspaceTextField *invisibleTextField;
-@property (strong, nonatomic) VENBackspaceTextField *inputTextField;
 @property (strong, nonatomic) UIColor *colorScheme;
 @property (strong, nonatomic) UILabel *collapsedLabel;
 
@@ -86,10 +85,12 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     self.horizontalInset = VENTokenFieldDefaultHorizontalInset;
     self.tokenPadding = VENTokenFieldDefaultTokenPadding;
     self.minInputWidth = VENTokenFieldDefaultMinInputWidth;
+    self.toLabelPadding = VENTokenFieldDefaultToLabelPadding;
     self.colorScheme = [UIColor blueColor];
     self.toLabelTextColor = [UIColor colorWithRed:112/255.0f green:124/255.0f blue:124/255.0f alpha:1.0f];
     self.inputTextFieldTextColor = [UIColor colorWithRed:38/255.0f green:39/255.0f blue:41/255.0f alpha:1.0f];
-    
+    self.font = [UIFont fontWithName:@"HelveticaNeue" size:15.5];
+
     // Accessing bare value to avoid kicking off a premature layout run.
     _toLabelText = NSLocalizedString(@"To:", nil);
 
@@ -151,6 +152,11 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     }
 }
 
+- (void)setFont:(UIFont *)font {
+    _font = font;
+    self.inputTextField.font = _font;
+}
+
 - (NSString *)inputText
 {
     return self.inputTextField.text;
@@ -198,7 +204,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     CGFloat currentX = 0;
     CGFloat currentY = 0;
 
-    [self layoutToLabelInView:self.scrollView origin:CGPointZero currentX:&currentX];
+    [self layoutToLabelInView:self.scrollView origin:CGPointMake(self.horizontalInset, self.verticalInset) currentX:&currentX];
     [self layoutTokensWithCurrentX:&currentX currentY:&currentY];
     [self layoutInputTextFieldWithCurrentX:&currentX currentY:&currentY];
 
@@ -226,11 +232,8 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 {
     self.scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame))];
     self.scrollView.scrollsToTop = NO;
-    self.scrollView.contentSize = CGSizeMake(CGRectGetWidth(self.frame) - self.horizontalInset * 2, CGRectGetHeight(self.frame) - self.verticalInset * 2);
-    self.scrollView.contentInset = UIEdgeInsetsMake(self.verticalInset,
-                                                    self.horizontalInset,
-                                                    self.verticalInset,
-                                                    self.horizontalInset);
+    self.scrollView.contentSize = CGSizeMake(CGRectGetWidth(self.frame), CGRectGetHeight(self.frame));
+    self.scrollView.contentInset = UIEdgeInsetsZero;
     self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 
     [self addSubview:self.scrollView];
@@ -247,7 +250,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
     VENBackspaceTextField *inputTextField = self.inputTextField;
     inputTextField.text = @"";
-    inputTextField.frame = CGRectMake(*currentX, *currentY + 1, inputTextFieldWidth, [self heightForToken] - 1);
+    inputTextField.frame = CGRectMake(*currentX, *currentY + 2, inputTextFieldWidth, [self heightForToken] - 2);
     inputTextField.tintColor = self.colorScheme;
     [self.scrollView addSubview:inputTextField];
 }
@@ -255,7 +258,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 - (void)layoutCollapsedLabelWithCurrentX:(CGFloat *)currentX
 {
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(*currentX, CGRectGetMinY(self.toLabel.frame), self.width - *currentX - self.horizontalInset, self.toLabel.height)];
-    label.font = [UIFont fontWithName:@"HelveticaNeue" size:15.5];
+    label.font = _font;
     label.text = [self collapsedText];
     label.textColor = self.colorScheme;
     label.minimumScaleFactor = 5./label.font.pointSize;
@@ -268,17 +271,17 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 {
     [self.toLabel removeFromSuperview];
     self.toLabel = [self toLabel];
-    
+
     CGRect newFrame = self.toLabel.frame;
     newFrame.origin = origin;
-    
+
     [self.toLabel sizeToFit];
     newFrame.size.width = CGRectGetWidth(self.toLabel.frame);
-    
+
     self.toLabel.frame = newFrame;
-    
+
     [view addSubview:self.toLabel];
-    *currentX += self.toLabel.hidden ? CGRectGetMinX(self.toLabel.frame) : CGRectGetMaxX(self.toLabel.frame) + VENTokenFieldDefaultToLabelPadding;
+    *currentX += self.toLabel.hidden ? CGRectGetMinX(self.toLabel.frame) : CGRectGetMaxX(self.toLabel.frame) + self.toLabelPadding;
 }
 
 - (void)layoutTokensWithCurrentX:(CGFloat *)currentX currentY:(CGFloat *)currentY
@@ -287,6 +290,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         NSString *title = [self titleForTokenAtIndex:i];
         VENToken *token = [[VENToken alloc] init];
         token.colorScheme = self.colorScheme;
+        token.font = self.font;
 
         __weak VENToken *weakToken = token;
         __weak VENTokenField *weakSelf = self;
@@ -332,9 +336,6 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (void)inputTextFieldBecomeFirstResponder
 {
-    if (self.inputTextField.isFirstResponder) {
-        return;
-    }
 
     [self.inputTextField becomeFirstResponder];
     if ([self.delegate respondsToSelector:@selector(tokenFieldDidBeginEditing:)]) {
@@ -518,6 +519,13 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         [self unhighlightAllTokens];
     }
 }
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    if (textField == self.inputTextField && [self.delegate respondsToSelector:@selector(tokenFieldDidEndEditing:)]) {
+        [self.delegate tokenFieldDidEndEditing:self];
+    }
+}
+
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
