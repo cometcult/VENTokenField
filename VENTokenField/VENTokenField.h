@@ -70,6 +70,7 @@
 @property (strong, nonatomic) UIColor *toLabelTextColor;
 @property (strong, nonatomic) NSString *toLabelText;
 @property (strong, nonatomic) UIColor *inputTextFieldTextColor;
+@property (strong, nonatomic) UIColor *inputTextFieldTintColor;
 @property (strong, nonatomic) UIFont *font;
 
 @property (strong, nonatomic) UILabel *toLabel;

@@ -89,6 +89,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     self.colorScheme = [UIColor blueColor];
     self.toLabelTextColor = [UIColor colorWithRed:112/255.0f green:124/255.0f blue:124/255.0f alpha:1.0f];
     self.inputTextFieldTextColor = [UIColor colorWithRed:38/255.0f green:39/255.0f blue:41/255.0f alpha:1.0f];
+    self.inputTextFieldTintColor = [UIColor colorWithRed:38/255.0f green:39/255.0f blue:41/255.0f alpha:1.0f];
     self.font = [UIFont fontWithName:@"HelveticaNeue" size:15.5];
 
     // Accessing bare value to avoid kicking off a premature layout run.
@@ -251,7 +252,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     VENBackspaceTextField *inputTextField = self.inputTextField;
     inputTextField.text = @"";
     inputTextField.frame = CGRectMake(*currentX, *currentY + 2, inputTextFieldWidth, [self heightForToken] - 2);
-    inputTextField.tintColor = self.colorScheme;
+    inputTextField.tintColor = self.inputTextFieldTintColor;
     [self.scrollView addSubview:inputTextField];
 }
 
@@ -385,7 +386,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
         _inputTextField.font = [UIFont fontWithName:@"HelveticaNeue" size:15.5];
         _inputTextField.autocorrectionType = self.autocorrectionType;
         _inputTextField.autocapitalizationType = self.autocapitalizationType;
-        _inputTextField.tintColor = self.colorScheme;
+        _inputTextField.tintColor = self.inputTextFieldTintColor;
         _inputTextField.delegate = self;
         _inputTextField.placeholder = self.placeholderText;
         _inputTextField.accessibilityLabel = self.inputTextFieldAccessibilityLabel ?: NSLocalizedString(@"To", nil);
