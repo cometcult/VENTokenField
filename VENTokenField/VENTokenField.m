@@ -187,8 +187,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     [self layoutToLabelInView:self origin:CGPointMake(self.horizontalInset, self.verticalInset) currentX:&currentX];
     [self layoutCollapsedLabelWithCurrentX:&currentX];
 
-    self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
-                                                                        action:@selector(handleSingleTap:)];
+    self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
     [self addGestureRecognizer:self.tapGestureRecognizer];
 }
 
@@ -452,7 +451,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     NSArray *highlightedTokens = [self.tokens filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(VENToken *evaluatedObject, NSDictionary *bindings) {
         return evaluatedObject.highlighted;
     }]];
-    BOOL visible = [highlightedTokens count] == 0;
+    BOOL visible = (highlightedTokens.count == 0);
     if (visible) {
         [self inputTextFieldBecomeFirstResponder];
     } else {
@@ -530,7 +529,11 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    [self unhighlightAllTokens];
+    if ([string isEqualToString:@""] && NSEqualRanges(range, NSMakeRange(0, 0))) {
+        [self textFieldDidEnterBackspace:(VENBackspaceTextField *) textField];
+    } else {
+        [self unhighlightAllTokens];
+    }
     return YES;
 }
 
