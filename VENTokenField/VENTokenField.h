@@ -49,6 +49,7 @@
 
 - (void)reloadData;
 - (void)collapse;
+- (void)expand;
 - (NSString *)inputText;
 
 
@@ -82,4 +83,3 @@
 - (void)setColorScheme:(UIColor *)color;
 
 @end
-

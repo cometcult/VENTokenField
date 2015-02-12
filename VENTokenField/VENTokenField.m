@@ -109,6 +109,11 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     [self layoutCollapsedLabel];
 }
 
+- (void)expand
+{
+    [self layoutTokensAndInputWithFrameAdjustment:YES];
+}
+
 - (void)reloadData
 {
     [self layoutTokensAndInputWithFrameAdjustment:YES];
